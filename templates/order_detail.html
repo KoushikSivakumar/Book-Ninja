@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} - Book Ninja{% endblock %}
+
+{% block content %}
+<section class="order-detail-section">
+    <div class="container">
+        <a href="{{ url_for('orders') }}" class="back-link">← Back to Orders</a>
+        
+        <div class="order-detail-header">
+            <h1>Order #{{ order.id }}</h1>
+            <span class="order-status {{ order.status.lower() }}">{{ order.status }}</span>
+        </div>
+        
+        <div class="order-detail-grid">
+            <div class="order-detail-info">
+                <div class="info-block">
+                    <h4>Order Details</h4>
+                    <div class="info-row">
+                        <span class="label">Date</span>
+                        <span class="value">{{ order.created_at.strftime('%d %B %Y, %I:%M %p') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Payment</span>
+                        <span class="value">{{ order.payment_method }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Shipping Address</span>
+                        <span class="value">{{ order.shipping_address }}</span>
+                    </div>
+                </div>
+                
+                <div class="info-block">
+                    <h4>Items</h4>
+                    <table class="order-items-table">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                                <tr>
+                                    <td>{{ item.book.title }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>₹{{ "%.2f"|format(item.price) }}</td>
+                                    <td>₹{{ "%.2f"|format(item.price * item.quantity) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-right"><strong>Total</strong></td>
+                                <td><strong>₹{{ "%.2f"|format(order.total) }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

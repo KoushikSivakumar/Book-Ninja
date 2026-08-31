@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation - Book Ninja{% endblock %}
+
+{% block content %}
+<section class="order-success-section">
+    <div class="container">
+        <div class="success-wrapper">
+            <div class="success-icon">✓</div>
+            <h1>Order Placed Successfully!</h1>
+            <p class="order-id">Order #{{ order.id }}</p>
+            <p class="order-date">{{ order.created_at.strftime('%d %B %Y, %I:%M %p') }}</p>
+            
+            <div class="order-details-summary">
+                <div class="detail-row">
+                    <span class="label">Status</span>
+                    <span class="value status-confirmed">{{ order.status }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Payment</span>
+                    <span class="value">{{ order.payment_method }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Total</span>
+                    <span class="value total-price">₹{{ "%.2f"|format(order.total) }}</span>
+                </div>
+            </div>
+            
+            <div class="order-items-preview">
+                <h4>Items</h4>
+                {% for item in order.items %}
+                    <div class="preview-item">
+                        <span>{{ item.book.title }} × {{ item.quantity }}</span>
+                        <span>₹{{ "%.2f"|format(item.price * item.quantity) }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="success-actions">
+                <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn-view-order">View Order Details</a>
+                <a href="{{ url_for('books') }}" class="btn-continue">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

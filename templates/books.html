@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Books - Book Ninja{% endblock %}
+
+{% block content %}
+<section class="catalogue-section">
+    <div class="container">
+        <div class="catalogue-header">
+            <h1>Our Books</h1>
+            <p class="catalogue-count">{{ books.total }} book{{ 's' if books.total != 1 else '' }} available</p>
+        </div>
+        
+        <div class="catalogue-controls">
+            <div class="search-filter">
+                <form action="{{ url_for('books') }}" method="get" class="catalogue-search">
+                    <input type="text" name="q" placeholder="Search..." value="{{ search_query or '' }}" class="search-input">
+                    <button type="submit" class="search-btn-small"><i class="bi bi-search"></i></button>
+                    {% if request.args.get('category') %}
+                        <input type="hidden" name="category" value="{{ current_category }}">
+                    {% endif %}
+                    {% if request.args.get('sort') %}
+                        <input type="hidden" name="sort" value="{{ current_sort }}">
+                    {% endif %}
+                </form>
+            </div>
+            
+            <div class="filter-sort">
+                <div class="filter-group">
+                    <label for="categoryFilter">Category</label>
+                    <select id="categoryFilter" onchange="window.location.href=this.value">
+                        <option value="{{ url_for('books') }}?q={{ search_query or '' }}&sort={{ current_sort }}" {% if not current_category %}selected{% endif %}>All</option>
+                        {% for cat in categories %}
+                            <option value="{{ url_for('books') }}?category={{ cat }}&q={{ search_query or '' }}&sort={{ current_sort }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sortFilter">Sort</label>
+                    <select id="sortFilter" onchange="window.location.href=this.value">
+                        <option value="{{ url_for('books') }}?q={{ search_query or '' }}&category={{ current_category or '' }}&sort=featured" {% if current_sort == 'featured' or not current_sort %}selected{% endif %}>Featured</option>
+                        <option value="{{ url_for('books') }}?q={{ search_query or '' }}&category={{ current_category or '' }}&sort=price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="{{ url_for('books') }}?q={{ search_query or '' }}&category={{ current_category or '' }}&sort=price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="{{ url_for('books') }}?q={{ search_query or '' }}&category={{ current_category or '' }}&sort=rating" {% if current_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                        <option value="{{ url_for('books') }}?q={{ search_query or '' }}&category={{ current_category or '' }}&sort=newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        {% if books.items %}
+            <div class="book-grid">
+                {% for book in books.items %}
+                    {% include 'partials/book_card.html' %}
+                {% endfor %}
+            </div>
+            
+            <div class="pagination-container">
+                {% if books.pages > 1 %}
+                    <nav aria-label="Book pagination">
+                        <ul class="pagination">
+                            {% if books.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('books', page=books.prev_num, q=search_query, category=current_category, sort=current_sort) }}">←</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for page_num in books.iter_pages(left_edge=2, right_edge=2, left_current=1, right_current=1) %}
+                                {% if page_num %}
+                                    <li class="page-item {% if page_num == books.page %}active{% endif %}">
+                                        <a class="page-link" href="{{ url_for('books', page=page_num, q=search_query, category=current_category, sort=current_sort) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if books.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('books', page=books.next_num, q=search_query, category=current_category, sort=current_sort) }}">→</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-book"></i>
+                <h3>No books found</h3>
+                <p>Try adjusting your search or filter.</p>
+                <a href="{{ url_for('books') }}" class="btn btn-primary">Clear filters</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

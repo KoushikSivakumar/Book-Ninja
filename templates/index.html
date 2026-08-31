@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Ninja - Books for the Curious Mind{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 hero-content">
+                <h1 class="hero-title">Let books be your guide to new horizons</h1>
+                <p class="hero-subtitle">Whether you're searching for inspiration, entertainment, or enlightenment, you'll find it here.</p>
+                <form class="hero-search" action="{{ url_for('books') }}" method="get">
+                    <div class="search-wrapper">
+                        <input type="text" name="q" placeholder="Search for books, authors, or categories..." class="search-input">
+                        <button type="submit" class="search-btn">Find Book</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-6 hero-visual">
+                <div class="hero-books-stack">
+                    <div class="stack-book" style="transform: rotate(-8deg) translateX(-20px);">
+                        <div class="stack-book-inner" style="background: #8B4513;"></div>
+                    </div>
+                    <div class="stack-book" style="transform: rotate(5deg) translateY(-10px);">
+                        <div class="stack-book-inner" style="background: #2C3E50;"></div>
+                    </div>
+                    <div class="stack-book" style="transform: rotate(-3deg) translateX(20px) translateY(-20px);">
+                        <div class="stack-book-inner" style="background: #8B0000;"></div>
+                    </div>
+                    <div class="stack-book" style="transform: rotate(12deg) translateX(-10px) translateY(-30px);">
+                        <div class="stack-book-inner" style="background: #2E4057;"></div>
+                    </div>
+                    <div class="stack-book" style="transform: rotate(-6deg) translateX(30px) translateY(-40px);">
+                        <div class="stack-book-inner" style="background: #5C4033;"></div>
+                    </div>
+                    <div class="stack-book front-book" style="transform: rotate(2deg) translateY(-50px); z-index: 10;">
+                        <div class="stack-book-inner" style="background: #1A1A2E; border: 2px solid #E2B400;">
+                            <span class="book-spine-text">BOOK NINJA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Bar -->
+<section class="category-section">
+    <div class="container">
+        <div class="category-bar">
+            <button class="category-scroll-btn" id="scrollLeft">←</button>
+            <div class="category-list" id="categoryList">
+                <a href="{{ url_for('books') }}" class="category-item {% if not request.args.get('category') %}active{% endif %}">All</a>
+                {% for cat in categories %}
+                    <a href="{{ url_for('books') }}?category={{ cat }}" class="category-item {% if request.args.get('category') == cat %}active{% endif %}">{{ cat }}</a>
+                {% endfor %}
+            </div>
+            <button class="category-scroll-btn" id="scrollRight">→</button>
+        </div>
+    </div>
+</section>
+
+<!-- Books Section -->
+<section class="books-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Grab your book today!</h2>
+            <a href="{{ url_for('books') }}" class="view-all-link">View All →</a>
+        </div>
+        
+        {% if books %}
+            <div class="book-grid">
+                {% for book in books %}
+                    {% include 'partials/book_card.html' %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>No books found. Please run the seed script.</p>
+                <a href="{{ url_for('books') }}" class="btn btn-primary">Browse All</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-wrapper">
+            <h2 class="newsletter-title">Stay in the Know</h2>
+            <p class="newsletter-text">Join our exclusive newsletter for recommendations, updates, literary insights, author interviews, and exciting giveaways!</p>
+            <form class="newsletter-form" id="newsletterForm">
+                <div class="newsletter-input-wrapper">
+                    <input type="email" name="email" placeholder="Enter your Email Address" required class="newsletter-input">
+                    <button type="submit" class="newsletter-btn">Subscribe</button>
+                </div>
+                <div class="newsletter-message" id="newsletterMessage"></div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Category scroll
+    const list = document.getElementById('categoryList');
+    const leftBtn = document.getElementById('scrollLeft');
+    const rightBtn = document.getElementById('scrollRight');
+    
+    if (leftBtn && rightBtn && list) {
+        leftBtn.addEventListener('click', function() {
+            list.scrollBy({ left: -200, behavior: 'smooth' });
+        });
+        rightBtn.addEventListener('click', function() {
+            list.scrollBy({ left: 200, behavior: 'smooth' });
+        });
+    }
+    
+    // Newsletter form
+    const form = document.getElementById('newsletterForm');
+    const message = document.getElementById('newsletterMessage');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[name="email"]').value;
+            if (email && email.includes('@')) {
+                message.innerHTML = '✅ Thank you for subscribing! Check your inbox soon.';
+                message.className = 'newsletter-message success';
+                this.querySelector('input').value = '';
+                setTimeout(() => {
+                    message.innerHTML = '';
+                    message.className = 'newsletter-message';
+                }, 5000);
+            } else {
+                message.innerHTML = '⚠️ Please enter a valid email address.';
+                message.className = 'newsletter-message error';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

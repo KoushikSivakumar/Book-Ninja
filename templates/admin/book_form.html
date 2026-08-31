@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Edit' if book else 'Add' }} Book - Admin{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1>{{ 'Edit' if book else 'Add New' }} Book</h1>
+            <div class="admin-nav">
+                <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin_books') }}">Manage Books</a>
+            </div>
+        </div>
+        
+        <div class="admin-form-wrapper">
+            <form action="{{ url_for('admin_book_edit', book_id=book.id) if book else url_for('admin_book_new') }}" method="post" class="admin-form">
+                <div class="form-group">
+                    <label for="title">Title *</label>
+                    <input type="text" name="title" id="title" value="{{ book.title if book else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="author">Author *</label>
+                    <input type="text" name="author" id="author" value="{{ book.author if book else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea name="description" id="description" rows="5" required>{{ book.description if book else '' }}</textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Price (₹) *</label>
+                        <input type="number" name="price" id="price" step="0.01" value="{{ book.price if book else '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="original_price">Original Price (₹)</label>
+                        <input type="number" name="original_price" id="original_price" step="0.01" value="{{ book.original_price if book else '' }}">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <input type="text" name="category" id="category" value="{{ book.category if book else '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="isbn">ISBN</label>
+                        <input type="text" name="isbn" id="isbn" value="{{ book.isbn if book else '' }}">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cover_image">Cover Image URL</label>
+                        <input type="url" name="cover_image" id="cover_image" value="{{ book.cover_image if book else '' }}" placeholder="https://example.com/cover.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">Stock *</label>
+                        <input type="number" name="stock" id="stock" value="{{ book.stock if book else '0' }}" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rating">Rating</label>
+                    <input type="number" name="rating" id="rating" step="0.1" min="0" max="5" value="{{ book.rating if book else '0' }}">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">{{ 'Update' if book else 'Add' }} Book</button>
+                    <a href="{{ url_for('admin_books') }}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

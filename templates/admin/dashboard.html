@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Book Ninja{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <div class="admin-nav">
+                <a href="{{ url_for('admin_dashboard') }}" class="active">Dashboard</a>
+                <a href="{{ url_for('admin_books') }}">Manage Books</a>
+            </div>
+        </div>
+        
+        <div class="admin-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_books }}</div>
+                <div class="stat-label">Total Books</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_users }}</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_orders }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">₹{{ "%.2f"|format(total_revenue) }}</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+        
+        <div class="admin-quick-actions">
+            <a href="{{ url_for('admin_book_new') }}" class="quick-action-btn">
+                <i class="bi bi-plus-circle"></i> Add New Book
+            </a>
+            <a href="{{ url_for('admin_books') }}" class="quick-action-btn">
+                <i class="bi bi-list"></i> Manage Books
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

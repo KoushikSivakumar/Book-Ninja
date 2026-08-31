@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Books - Admin{% endblock %}
+
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Manage Books</h1>
+            <div class="admin-nav">
+                <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('admin_books') }}" class="active">Manage Books</a>
+            </div>
+        </div>
+        
+        <div class="admin-actions">
+            <a href="{{ url_for('admin_book_new') }}" class="btn-primary">+ Add New Book</a>
+        </div>
+        
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for book in books %}
+                        <tr>
+                            <td>{{ book.id }}</td>
+                            <td>{{ book.title }}</td>
+                            <td>{{ book.author }}</td>
+                            <td>{{ book.category }}</td>
+                            <td>₹{{ "%.2f"|format(book.price) }}</td>
+                            <td>{{ book.stock }}</td>
+                            <td class="admin-actions-cell">
+                                <a href="{{ url_for('admin_book_edit', book_id=book.id) }}" class="action-edit">Edit</a>
+                                <form action="{{ url_for('admin_book_delete', book_id=book.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Delete this book?')">
+                                    <button type="submit" class="action-delete">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,55 @@
+<footer class="ninja-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5 class="footer-brand">BOOK NINJA</h5>
+                <p class="footer-tagline">Books for the curious mind.</p>
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-4 col-md-3">
+                        <h6>Browse</h6>
+                        <ul class="footer-links">
+                            <li><a href="{{ url_for('books') }}">All Books</a></li>
+                            <li><a href="{{ url_for('books') }}?category=Fiction">Fiction</a></li>
+                            <li><a href="{{ url_for('books') }}?category=Classics">Classics</a></li>
+                            <li><a href="{{ url_for('books') }}?category=Science">Science</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3">
+                        <h6>Account</h6>
+                        <ul class="footer-links">
+                            {% if current_user.is_authenticated %}
+                                <li><a href="{{ url_for('orders') }}">Orders</a></li>
+                                <li><a href="{{ url_for('wishlist') }}">Wishlist</a></li>
+                                <li><a href="{{ url_for('cart') }}">Cart</a></li>
+                            {% else %}
+                                <li><a href="{{ url_for('login') }}">Login</a></li>
+                                <li><a href="{{ url_for('register') }}">Sign Up</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="col-4 col-md-3">
+                        <h6>About</h6>
+                        <ul class="footer-links">
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="#">Contact</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <h6>Connect</h6>
+                        <div class="social-links">
+                            <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                            <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                            <a href="#" aria-label="Goodreads"><i class="bi bi-book"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {{ current_year }} Book Ninja. All rights reserved.</p>
+        </div>
+    </div>
+</footer>

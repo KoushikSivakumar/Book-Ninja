@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Cart - Book Ninja{% endblock %}
+
+{% block content %}
+<section class="cart-section">
+    <div class="container">
+        <h1 class="cart-title">Your Cart</h1>
+        
+        {% if cart_items %}
+            <div class="cart-grid">
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                        <div class="cart-item">
+                            <div class="cart-item-cover">
+                                <img src="{{ item.book.cover_image or '/static/images/books/placeholder.jpg' }}" 
+                                     alt="{{ item.book.title }}"
+                                     onerror="this.src='/static/images/books/placeholder.jpg'">
+                            </div>
+                            <div class="cart-item-details">
+                                <h3><a href="{{ url_for('book_detail', book_id=item.book.id) }}">{{ item.book.title }}</a></h3>
+                                <p class="cart-item-author">{{ item.book.author }}</p>
+                                <p class="cart-item-price">₹{{ "%.2f"|format(item.book.price) }} each</p>
+                                
+                                <div class="cart-item-actions">
+                                    <form action="{{ url_for('update_cart', book_id=item.book.id) }}" method="post" class="update-cart-form">
+                                        <div class="quantity-control">
+                                            <button type="button" class="qty-btn qty-minus">−</button>
+                                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.book.stock }}" class="qty-input">
+                                            <button type="button" class="qty-btn qty-plus">+</button>
+                                        </div>
+                                        <button type="submit" class="update-btn">Update</button>
+                                    </form>
+                                    <form action="{{ url_for('remove_from_cart', book_id=item.book.id) }}" method="post">
+                                        <button type="submit" class="remove-btn">Remove</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="cart-item-subtotal">
+                                <span class="subtotal-label">Subtotal:</span>
+                                <span class="subtotal-value">₹{{ "%.2f"|format(item.subtotal) }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="cart-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>₹{{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Shipping</span>
+                        <span>{% if shipping == 0 %}FREE{% else %}₹{{ "%.2f"|format(shipping) }}{% endif %}</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <a href="{{ url_for('checkout') }}" class="btn-checkout">Proceed to Checkout</a>
+                    <a href="{{ url_for('books') }}" class="btn-continue-shopping">Continue Shopping</a>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-cart">
+                <i class="bi bi-cart"></i>
+                <h3>Your cart is empty</h3>
+                <p>Looks like you haven't added any books yet.</p>
+                <a href="{{ url_for('books') }}" class="btn btn-primary">Browse Books</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.update-cart-form').forEach(form => {
+    const input = form.querySelector('.qty-input');
+    const minusBtn = form.querySelector('.qty-minus');
+    const plusBtn = form.querySelector('.qty-plus');
+    const max = parseInt(input.getAttribute('max')) || 999;
+    
+    if (minusBtn) {
+        minusBtn.addEventListener('click', function() {
+            let val = parseInt(input.value) || 1;
+            if (val > 1) {
+                input.value = val - 1;
+                form.querySelector('.update-btn').click();
+            }
+        });
+    }
+    
+    if (plusBtn) {
+        plusBtn.addEventListener('click', function() {
+            let val = parseInt(input.value) || 1;
+            if (val < max) {
+                input.value = val + 1;
+                form.querySelector('.update-btn').click();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

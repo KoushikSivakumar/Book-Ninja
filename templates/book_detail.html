@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} - Book Ninja{% endblock %}
+
+{% block content %}
+<section class="book-detail-section">
+    <div class="container">
+        <!-- Breadcrumbs -->
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="{{ url_for('index') }}">Home</a>
+            <span>/</span>
+            <a href="{{ url_for('books') }}">Books</a>
+            <span>/</span>
+            <span class="current">{{ book.title }}</span>
+        </nav>
+        
+        <div class="book-detail-grid">
+            <!-- Book Cover -->
+            <div class="book-detail-cover">
+                <div class="cover-wrapper">
+                    <img src="{{ book.cover_image or '/static/images/books/placeholder.jpg' }}" 
+                         alt="{{ book.title }} cover"
+                         onerror="this.src='/static/images/books/placeholder.jpg'">
+                    {% if book.discount_percentage > 0 %}
+                        <span class="discount-badge-large">-{{ book.discount_percentage }}%</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Book Info -->
+            <div class="book-detail-info">
+                <h1 class="book-detail-title">{{ book.title }}</h1>
+                <p class="book-detail-author">by {{ book.author }}</p>
+                
+                <div class="book-detail-rating">
+                    <div class="stars">
+                        {% for i in range(5) %}
+                            {% if i < book.rating|int %}
+                                <i class="bi bi-star-fill"></i>
+                            {% elif i < book.rating|round(0, 'ceil')|int %}
+                                <i class="bi bi-star-half"></i>
+                            {% else %}
+                                <i class="bi bi-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="rating-number">{{ "%.1f"|format(book.rating) }}</span>
+                    <span class="review-count">({{ reviews|length }} reviews)</span>
+                </div>
+                
+                <div class="book-detail-price">
+                    <span class="current-price">₹{{ "%.2f"|format(book.price) }}</span>
+                    {% if book.original_price and book.original_price > book.price %}
+                        <span class="original-price">₹{{ "%.2f"|format(book.original_price) }}</span>
+                        <span class="discount-text">Save {{ book.discount_percentage }}%</span>
+                    {% endif %}
+                </div>
+                
+                <div class="book-detail-stock">
+                    {% if book.stock > 0 %}
+                        <span class="stock-status in-stock">✓ In Stock ({{ book.stock }} available)</span>
+                    {% else %}
+                        <span class="stock-status out-of-stock">✕ Out of Stock</span>
+                    {% endif %}
+                </div>
+                
+                <div class="book-detail-actions">
+                    {% if book.stock > 0 %}
+                        <form action="{{ url_for('add_to_cart', book_id=book.id) }}" method="post" class="add-to-cart-form">
+                            <div class="quantity-selector">
+                                <button type="button" class="qty-btn qty-minus">−</button>
+                                <input type="number" name="quantity" value="1" min="1" max="{{ book.stock }}" class="qty-input">
+                                <button type="button" class="qty-btn qty-plus">+</button>
+                            </div>
+                            <button type="submit" class="btn-add-cart">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="btn-add-cart disabled" disabled>Out of Stock</button>
+                    {% endif %}
+                    
+                    <button class="btn-wishlist" data-book-id="{{ book.id }}" onclick="toggleWishlist({{ book.id }})">
+                        <i class="bi bi-heart{% if in_wishlist %}-fill{% endif %}"></i>
+                        <span>{% if in_wishlist %}Remove from{% else %}Add to{% endif %} Wishlist</span>
+                    </button>
+                </div>
+                
+                <div class="book-detail-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">ISBN</span>
+                        <span class="meta-value">{{ book.isbn or 'N/A' }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Category</span>
+                        <span class="meta-value">{{ book.category }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Description -->
+        <div class="book-description-section">
+            <h3>About the Book</h3>
+            <p>{{ book.description }}</p>
+        </div>
+        
+        <!-- Reviews -->
+        <div class="reviews-section">
+            <h3>Reviews</h3>
+            
+            {% if reviews %}
+                <div class="review-list">
+                    {% for review in reviews %}
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="reviewer-name">{{ review.user.name }}</span>
+                                <span class="review-date">{{ review.created_at.strftime('%d %b %Y') }}</span>
+                            </div>
+                            <div class="review-rating">
+                                {% for i in range(5) %}
+                                    <i class="bi bi-star{% if i < review.rating %}-fill{% else %}{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                            <p class="review-comment">{{ review.comment }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-reviews">No reviews yet. Be the first!</p>
+            {% endif %}
+            
+            <!-- Submit Review -->
+            {% if current_user.is_authenticated %}
+                <div class="review-form-wrapper">
+                    <h4>Write a Review</h4>
+                    <form action="{{ url_for('submit_review', book_id=book.id) }}" method="post" class="review-form">
+                        <div class="form-group">
+                            <label for="rating">Rating</label>
+                            <div class="rating-selector">
+                                <input type="radio" name="rating" value="5" id="star5"><label for="star5" title="5 stars">★</label>
+                                <input type="radio" name="rating" value="4" id="star4"><label for="star4" title="4 stars">★</label>
+                                <input type="radio" name="rating" value="3" id="star3"><label for="star3" title="3 stars">★</label>
+                                <input type="radio" name="rating" value="2" id="star2"><label for="star2" title="2 stars">★</label>
+                                <input type="radio" name="rating" value="1" id="star1"><label for="star1" title="1 star">★</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="comment">Comment</label>
+                            <textarea name="comment" id="comment" rows="4" placeholder="Share your thoughts..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit-review">Submit Review</button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="review-login-prompt">
+                    <p><a href="{{ url_for('login', next=request.path) }}">Log in</a> to write a review.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Recommendations -->
+        {% if recommendations %}
+            <div class="recommendations-section">
+                <h3>You may also like</h3>
+                <div class="book-grid">
+                    {% for rec_book in recommendations %}
+                        {% set book = rec_book %}
+                        {% include 'partials/book_card.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Quantity controls
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    const input = form.querySelector('.qty-input');
+    const minusBtn = form.querySelector('.qty-minus');
+    const plusBtn = form.querySelector('.qty-plus');
+    const max = parseInt(input.getAttribute('max')) || 999;
+    
+    if (minusBtn) {
+        minusBtn.addEventListener('click', function() {
+            let val = parseInt(input.value) || 1;
+            if (val > 1) {
+                input.value = val - 1;
+            }
+        });
+    }
+    
+    if (plusBtn) {
+        plusBtn.addEventListener('click', function() {
+            let val = parseInt(input.value) || 1;
+            if (val < max) {
+                input.value = val + 1;
+            }
+        });
+    }
+    
+    // Ensure input stays within bounds
+    if (input) {
+        input.addEventListener('change', function() {
+            let val = parseInt(this.value) || 1;
+            if (val < 1) this.value = 1;
+            if (val > max) this.value = max;
+        });
+    }
+});
+
+// Wishlist toggle
+function toggleWishlist(bookId) {
+    fetch(`/wishlist/toggle/${bookId}`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const btn = document.querySelector(`.btn-wishlist[data-book-id="${bookId}"]`);
+        const icon = btn.querySelector('i');
+        const text = btn.querySelector('span');
+        
+        if (data.wishlisted) {
+            icon.className = 'bi bi-heart-fill';
+            text.textContent = 'Remove from Wishlist';
+        } else {
+            icon.className = 'bi bi-heart';
+            text.textContent = 'Add to Wishlist';
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

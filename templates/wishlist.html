@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Wishlist - Book Ninja{% endblock %}
+
+{% block content %}
+<section class="wishlist-section">
+    <div class="container">
+        <h1 class="wishlist-title">My Wishlist</h1>
+        
+        {% if books %}
+            <div class="book-grid">
+                {% for book in books %}
+                    {% include 'partials/book_card.html' %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-wishlist">
+                <i class="bi bi-heart"></i>
+                <h3>Your wishlist is empty</h3>
+                <p>Start adding books you love.</p>
+                <a href="{{ url_for('books') }}" class="btn btn-primary">Browse Books</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
